@@ -1,0 +1,14 @@
+[server]
+port = 8502
+
+[theme]
+
+# Primary accent for interactive elements
+base="dark"
+# primaryColor="#152396"
+# primaryColor="#065275"
+primaryColor="#5ab9a1"
+font="sans serif"
+
+[deprecation]
+showPyplotGlobalUse = false
