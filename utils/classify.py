@@ -16,7 +16,8 @@ CLS_CFG_PATH = os.path.join(TMP_DIR, 'cls.json')
 
 
 target_type_dict = {
-    'forestfire': 0
+    'forestfire': 0,
+    'imagenet': 1
 }
 
 def paras_target_type(target_type):
@@ -26,6 +27,7 @@ def paras_target_type(target_type):
 
 model_size_dict = {
     '512-512': 0,
+    '224-224': 1,
 }
 
 
@@ -34,7 +36,8 @@ cls_config = {
     "model_size": '512-512',
     "label_names": ["no-fire", "fire"],
     "candidate_weights": ('None',),
-    "weight_name": None
+    "weight_name": None,
+    "rgb_input": False
 }
 
 
@@ -42,7 +45,7 @@ def update_cls_config(cls_config, **kwargs):
     for key in kwargs:
         if key not in cls_config: continue
         if key in ('target_type', 'model_size',
-                   'weight_name',
+                   'weight_name', "rgb_input"
                    ):
             cls_config[key] = kwargs[key]
 
@@ -68,8 +71,11 @@ def write_cls_config(config):
     if config['weight_name'] == 'None': return False
     json_config = {
         "model_path": os.path.join(WEIGHT_DIR, config['weight_name']),
-        "label_names": config['label_names']
+        "label_names": config['label_names'],
+        "rgb_input": config['rgb_input']
     }
+    if cls_config['target_type'] == 'imagenet':
+        json_config.pop('label_names')
     with open(CLS_CFG_PATH, 'wt') as f:
         f.write(json.dumps(json_config, indent=4))
     return True

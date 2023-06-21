@@ -57,14 +57,15 @@ detect_config = {
     "strides": [4, 8, 16, 32],
     "label_names": ["Person", "Vehicle"],
     "candidate_weights": ('None',),
-    "weight_name": None
+    "weight_name": None,
+    "rgb_input": False
 }
 
 
 def update_detect_config(detect_config, **kwargs):
     for key in kwargs:
         if key not in detect_config: continue
-        if key in ('arch_type', 'target_type', 'model_size',
+        if key in ('arch_type', 'target_type', 'model_size', 'rgb_input',
                    'score_thresh', 'iou_thresh', 'nms_in_same_class',
                    'weight_name',
                    ):
@@ -96,6 +97,7 @@ def write_detect_config(config):
         "arch_type": arch_type_dict[config['arch_type']],
         "model_width": model_width,
         "model_height": model_height,
+        "rgb_input": config['rgb_input'],
         "nms_in_same_class": 1 if config['nms_in_same_class'] else 0,
         "score_thresh": config['score_thresh'],
         "iou_thresh": config['iou_thresh'],
@@ -146,7 +148,7 @@ def detect_video(config, video, det_num):
         return open(result_video_path, 'rb'), info_str
 
 
-def detect_sequence(config, image_dir, det_num):
+def detect_sequence(config, image_dir, det_num, save_to_txt=False):
     if not os.path.exists(image_dir):
         st.error('Invalid sequence directory!')
         return None, None
@@ -154,9 +156,13 @@ def detect_sequence(config, image_dir, det_num):
         st.error('Invalid config settings!')
         return None, None
     cmd_str = f'{TOOLKITS} --source_path "{image_dir}" --det_cfg_path "{DET_CFG_PATH}"'
-    cmd_str +=  ' --save_to_video 0 --no_log 1 --run_mot 0 --save_to_sequence 1 --save_to_txt 0'
+    cmd_str +=  ' --no_log 1 --run_mot 0 --save_to_sequence 1'
     if det_num > 0:
         cmd_str += f' --run_frame_num {det_num}'
+    if save_to_txt:
+        cmd_str += '  --save_to_txt 1'
+    else:
+        cmd_str += '  --save_to_txt 0'
     with st.spinner('Detecting with the given sequence...'):
         info_str = "".join(os.popen(cmd_str).readlines()[-1])
     return True, info_str

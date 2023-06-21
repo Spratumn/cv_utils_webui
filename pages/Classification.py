@@ -36,8 +36,8 @@ cfg_c21, *_ = st.columns([2, 1, 1])
 with cfg_c21:
     candidate_weight_name = st.selectbox('Select model to run classification',
                                          cls_config['candidate_weights'])
-
-update_cls_config(cls_config, weight_name=candidate_weight_name)
+    rgb_input = st.checkbox('RGB input', cls_config['rgb_input'])
+update_cls_config(cls_config, weight_name=candidate_weight_name, rgb_input=rgb_input)
 
 
 st.subheader(':film_frames: Classify image')

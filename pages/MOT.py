@@ -51,12 +51,14 @@ with cfg_c22:
     iou_thresh = st.slider('Det IOU Thresh:', 0.3, 1.0, detect_config['iou_thresh'], step=0.05)
 
 with cfg_c23:
+    rgb_input = st.checkbox('RGB input', detect_config['rgb_input'])
     nms_in_same_class = st.checkbox('NMS in same class:', detect_config['nms_in_same_class'])
 
 
 update_detect_config(detect_config,
                      score_thresh=score_thresh,
                      iou_thresh=iou_thresh,
+                     rgb_input=rgb_input,
                      nms_in_same_class=nms_in_same_class,
                      weight_name=candidate_weight_name
                      )

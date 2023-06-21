@@ -53,11 +53,13 @@ with cfg_c22:
     iou_thresh = st.slider('IOU Thresh:', 0.3, 1.0, detect_config['iou_thresh'], step=0.05)
 
 with cfg_c23:
+    rgb_input = st.checkbox('RGB input', detect_config['rgb_input'])
     nms_in_same_class = st.checkbox('NMS in same class', detect_config['nms_in_same_class'])
 
 update_detect_config(detect_config,
                      score_thresh=score_thresh,
                      iou_thresh=iou_thresh,
+                     rgb_input=rgb_input,
                      nms_in_same_class=nms_in_same_class,
                      weight_name=candidate_weight_name
                      )
@@ -128,11 +130,16 @@ st.write(
     "Try selecting an image folder run detection, The result images can be found in the image folder."
 )
 with st.form("Detect Sequence"):
-    image_dir = st.text_input('Select image directory:')
-    image_det_num = st.number_input('Number of images to detect :', max_value=5000, min_value=-1, value=-1)
-
+    seq_c1, seq_c2, seq_c3 = st.columns(3)
+    with seq_c1:
+        image_dir = st.text_input('Select image directory:')
+    with seq_c2:
+        image_det_num = st.number_input('Number of images to detect :', max_value=5000, min_value=-1, value=-1)
+    with seq_c3:
+        save_to_txt = st.checkbox('Save to txt', False)
     if st.form_submit_button("Detect Sequence :point_left:"):
-        ret, info = detect_sequence(detect_config, image_dir, det_num=image_det_num)
+        ret, info = detect_sequence(detect_config, image_dir, det_num=image_det_num,
+                                    save_to_txt=save_to_txt)
         if ret:st.info(info)
 
 
