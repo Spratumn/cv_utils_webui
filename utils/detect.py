@@ -58,7 +58,8 @@ detect_config = {
     "label_names": ["Person", "Vehicle"],
     "candidate_weights": ('None',),
     "weight_name": None,
-    "rgb_input": False
+    "rgb_input": False,
+    "draw_label": True
 }
 
 
@@ -67,7 +68,7 @@ def update_detect_config(detect_config, **kwargs):
         if key not in detect_config: continue
         if key in ('arch_type', 'target_type', 'model_size', 'rgb_input',
                    'score_thresh', 'iou_thresh', 'nms_in_same_class',
-                   'weight_name',
+                   'weight_name', 'draw_label'
                    ):
             detect_config[key] = kwargs[key]
 
@@ -116,6 +117,8 @@ def detect_image(config, image:Image):
     image.save(TMP_IMAGE_PATH)
     cmd_str = f'{TOOLKITS} --source_path {TMP_IMAGE_DIR} --det_cfg_path {DET_CFG_PATH}'
     cmd_str +=  ' --save_to_video 0 --no_log 1 --run_mot 0 --save_to_sequence 1 --save_to_txt 0'
+    if not config['draw_label']:
+        cmd_str +=  ' --draw_label 0'
     with st.spinner('Running Detection with the given image...'):
         info_str = "".join(os.popen(cmd_str).readlines()[-1])
     result_image_path = TMP_IMAGE_DIR + '-det/tmp.jpg'
@@ -139,6 +142,8 @@ def detect_video(config, video, det_num):
     cmd_str +=  ' --save_to_video 1 --no_log 1 --run_mot 0 --save_to_sequence 0 --save_to_txt 0'
     if det_num > 0:
         cmd_str += f' --run_frame_num {det_num}'
+    if not config['draw_label']:
+        cmd_str +=  ' --draw_label 0'
     with st.spinner('Running Detection with the given video...'):
         info_str = "".join(os.popen(cmd_str).readlines()[-1])
         result_video_path = TMP_DIR + f'/tmp.{suffix}-det.mp4'
@@ -163,6 +168,8 @@ def detect_sequence(config, image_dir, det_num, save_to_txt=False):
         cmd_str += '  --save_to_txt 1'
     else:
         cmd_str += '  --save_to_txt 0'
+    if not config['draw_label']:
+        cmd_str +=  ' --draw_label 0'
     with st.spinner('Detecting with the given sequence...'):
         info_str = "".join(os.popen(cmd_str).readlines()[-1])
     return True, info_str

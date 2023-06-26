@@ -14,6 +14,7 @@ MOT_CFG_PATH = os.path.join(TMP_DIR, 'mot.json')
 mot_params = {
     'max_detect_count': 100,
     'lag_frame_num': 0,
+    'draw_label': 1
 }
 
 
@@ -96,7 +97,8 @@ def mot_on_video(params, config, video, run_frame_num):
     cmd_str += f'  --save_to_txt 1'
     cmd_str += f'  --max_detect_count {params["max_detect_count"]}'
     cmd_str += f'  --lag_frame_num {params["lag_frame_num"]}'
-
+    if not params['draw_label']:
+        cmd_str +=  ' --draw_label 0'
     with st.spinner('Running MOT with the given video...'):
         info_str = "".join(os.popen(cmd_str).readlines()[-1])
         results = {

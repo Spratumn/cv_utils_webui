@@ -51,8 +51,12 @@ with cfg_c22:
     iou_thresh = st.slider('Det IOU Thresh:', 0.3, 1.0, detect_config['iou_thresh'], step=0.05)
 
 with cfg_c23:
-    rgb_input = st.checkbox('RGB input', detect_config['rgb_input'])
-    nms_in_same_class = st.checkbox('NMS in same class:', detect_config['nms_in_same_class'])
+    cfg_c231, cfg_c232 = st.columns(2)
+    with cfg_c231:
+        rgb_input = st.checkbox('RGB input', detect_config['rgb_input'])
+        nms_in_same_class = st.checkbox('NMS in same class', detect_config['nms_in_same_class'])
+    with cfg_c232:
+        draw_label = st.checkbox('Draw label', detect_config['draw_label'])
 
 
 update_detect_config(detect_config,
@@ -60,6 +64,7 @@ update_detect_config(detect_config,
                      iou_thresh=iou_thresh,
                      rgb_input=rgb_input,
                      nms_in_same_class=nms_in_same_class,
+                     draw_label=draw_label,
                      weight_name=candidate_weight_name
                      )
 
@@ -151,6 +156,7 @@ if st.button("Run MOT :point_left:"):
         mot_param_kwargs = {
             'max_detect_count': max_detect_count,
             'lag_frame_num': lag_frame_num,
+            'draw_label': draw_label,
         }
         update_mot_params(mot_params, **mot_param_kwargs)
         mot_cfg_kwargs = {

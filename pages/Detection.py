@@ -53,14 +53,19 @@ with cfg_c22:
     iou_thresh = st.slider('IOU Thresh:', 0.3, 1.0, detect_config['iou_thresh'], step=0.05)
 
 with cfg_c23:
-    rgb_input = st.checkbox('RGB input', detect_config['rgb_input'])
-    nms_in_same_class = st.checkbox('NMS in same class', detect_config['nms_in_same_class'])
+    cfg_c231, cfg_c232 = st.columns(2)
+    with cfg_c231:
+        rgb_input = st.checkbox('RGB input', detect_config['rgb_input'])
+        nms_in_same_class = st.checkbox('NMS in same class', detect_config['nms_in_same_class'])
+    with cfg_c232:
+        draw_label = st.checkbox('Draw label', detect_config['draw_label'])
 
 update_detect_config(detect_config,
                      score_thresh=score_thresh,
                      iou_thresh=iou_thresh,
                      rgb_input=rgb_input,
                      nms_in_same_class=nms_in_same_class,
+                     draw_label=draw_label,
                      weight_name=candidate_weight_name
                      )
 
