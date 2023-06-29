@@ -18,6 +18,7 @@ DET_CFG_PATH = os.path.join(TMP_DIR, 'detection.json')
 arch_type_dict = {
     'yolox': 0,
     'damoyolo': 1,
+    'yolov8': 2,
 }
 
 target_type_dict = {
@@ -38,11 +39,13 @@ model_size_dict = {
     '704-416': 1,
     '640-384': 2,
     '576-352': 3,
+    '640-640': 4,
 }
 
 strides_dict = {
     'yolox': [4, 8, 16, 32],
-    'damoyolo': [8, 16, 32]
+    'damoyolo': [8, 16, 32],
+    'yolov8': [8, 16, 32]
 
 }
 
