@@ -57,7 +57,7 @@ image_c2, image_c3 = st.columns(2)
 with image_c2:
     if st.button("Classify Image :point_left:"):
         if image_upload is not None:
-            result_image, info = classify_image(cls_config, image)
+            result_image, info = classify_image(cls_config, image, image_upload.name)
             if result_image is not None:
                 image_col2.write("Result:")
                 image_col2.image(result_image)
@@ -66,7 +66,9 @@ with image_c2:
             st.error('Please upload an image and then click "Classify Image" button.')
 with image_c3:
     if cls_succeed:
-        st.download_button("Download reuslt image", convert_image(result_image), "reuslt.png", "image/png")
+        st.download_button("Download reuslt image",
+                           convert_image(result_image),
+                           f"cls_reuslt_{image_upload.name}", "image/png")
 if cls_succeed:st.info(info)
 
 st.subheader(':camera: Classify Video')
@@ -96,7 +98,9 @@ with video_c2:
             st.error('Please upload a video and then click "Classify Video" button.')
 with video_c3:
     if cls_succeed:
-        st.download_button("Download reuslt video", result_video, f"cls_reuslt_{video_upload.name}", "video/mp4")
+        st.download_button("Download reuslt video",
+                           result_video,
+                           f"cls_reuslt_{video_upload.name}", "video/mp4")
 if cls_succeed:st.info(info)
 
 

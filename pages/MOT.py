@@ -183,7 +183,7 @@ if st.button("Run MOT :point_left:"):
             "strack_max_target_scale": strack_max_target_scale
         }
         update_mot_config(mot_config, **mot_cfg_kwargs)
-        mot_results, mot_info = mot_on_video(mot_params, mot_config, video_upload, mot_frame_num)
+        mot_results, mot_info = mot_on_video(mot_params, mot_config, detect_config, video_upload, mot_frame_num)
 
         if mot_info is not None:
             st.info(mot_info)

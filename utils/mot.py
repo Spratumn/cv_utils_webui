@@ -2,13 +2,13 @@ import os
 import json
 import pandas as pd
 import streamlit as st
+import time
+import shutil
 
-from .main import TMP_DIR
-from .detect import DET_CFG_PATH
+from .main import CFG_DIR, VIDEO_DIR
+from .detect import write_detect_config
 
 TOOLKITS = '/home/orangepi/CCode/BOARD_TEST_TOOL/toolkits/bin/det_mot'
-
-MOT_CFG_PATH = os.path.join(TMP_DIR, 'mot.json')
 
 
 mot_params = {
@@ -71,11 +71,13 @@ def update_mot_config(mot_config, **kwargs):
 
 
 def write_mot_config(mot_config):
-    with open(MOT_CFG_PATH, 'wt') as f:
+    time_uid = str(time.time())
+    cur_mot_cfg_path = os.path.join(CFG_DIR, f'{time_uid}.json')
+    with open(cur_mot_cfg_path, 'wt') as f:
         f.write(json.dumps(mot_config, indent=4))
-    return True
+    return time_uid
 
-def mot_on_video(params, config, video, run_frame_num):
+def mot_on_video(params, config, detect_config, video, run_frame_num):
     config_to_save = {}
     config_to_save.update(config)
     config_to_save["distance_type"] = distance_type_dict[config["distance_type"]]
@@ -83,14 +85,21 @@ def mot_on_video(params, config, video, run_frame_num):
     config_to_save["class_diff_type"] = 1 if config["class_diff_type"] else 0
     config_to_save["lag_compensate"] = 1 if config["lag_compensate"] else 0
     config_to_save["match_with_velocity"] = 1 if config["match_with_velocity"] else 0
-    write_mot_config(config_to_save)
-    suffix = video.name.split('.')[-1]
-    video_path = TMP_DIR + f'/tmp.{suffix}'
+    time_uid_mot = write_mot_config(config_to_save)
+    time_uid_det = write_detect_config(detect_config)
+    if time_uid_det is None:
+        st.error('Invalid det config settings!')
+        return None, None
+    cur_mot_cfg_path = os.path.join(CFG_DIR, f'{time_uid_mot}.json')
+    cur_det_cfg_path = os.path.join(CFG_DIR, f'{time_uid_det}.json')
+    cur_video_dir = os.path.join(VIDEO_DIR, time_uid_mot)
+    if not os.path.exists(cur_video_dir): os.mkdir(cur_video_dir)
+    video_path = os.path.join(cur_video_dir, video.name)
     byte_video = video.getvalue()
     with open(video_path, 'wb') as f:
         f.write(byte_video)
 
-    cmd_str = f'{TOOLKITS} --source_path "{video_path}" --det_cfg_path "{DET_CFG_PATH}" --mot_cfg_path "{MOT_CFG_PATH}"'
+    cmd_str = f'{TOOLKITS} --source_path "{video_path}" --det_cfg_path "{cur_det_cfg_path}" --mot_cfg_path "{cur_mot_cfg_path}"'
     cmd_str +=  ' --save_to_video 1 --no_log 1 --run_mot 1 --save_to_sequence 0'
     if run_frame_num > 0:
         cmd_str += f'  --run_frame_num {run_frame_num}'
@@ -102,10 +111,10 @@ def mot_on_video(params, config, video, run_frame_num):
     with st.spinner('Running MOT with the given video...'):
         info_str = "".join(os.popen(cmd_str).readlines()[-1])
         results = {
-            'det_video': TMP_DIR + f'/tmp.{suffix}-det.{suffix}',
-            'mot_video': TMP_DIR + f'/tmp.{suffix}-mot.{suffix}',
-            'det_txt': TMP_DIR + f'/tmp.{suffix}_det.txt',
-            'mot_txt': TMP_DIR + f'/tmp.{suffix}_mot.txt',
+            'det_video': cur_video_dir + f'/{video.name}-det.mp4',
+            'mot_video': cur_video_dir + f'/{video.name}-mot.mp4',
+            'det_txt': cur_video_dir + f'/{video.name}_det.txt',
+            'mot_txt': cur_video_dir + f'/{video.name}_mot.txt',
         }
         mot_succeed = False
         for key, result_path in results.items():
@@ -119,5 +128,9 @@ def mot_on_video(params, config, video, run_frame_num):
                                                   names=['frame_id', 'track_id', 'x', 'y', 'w', 'h', 'class_id', 'score'],
                                                   header=None)
                 mot_succeed = True
-        if mot_succeed: return results, info_str
+        if mot_succeed:
+            os.remove(cur_mot_cfg_path)
+            os.remove(cur_det_cfg_path)
+            shutil.rmtree(cur_video_dir)
+            return results, info_str
         return None, None

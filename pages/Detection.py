@@ -87,7 +87,7 @@ image_c2, image_c3 = st.columns(2)
 with image_c2:
     if st.button("Detect Image :point_left:"):
         if image_upload is not None:
-            result_image, info = detect_image(detect_config, image)
+            result_image, info = detect_image(detect_config, image, image_upload.name)
             if result_image is not None:
                 image_col2.write("Result:")
                 image_col2.image(result_image)
@@ -96,7 +96,9 @@ with image_c2:
             st.error('Please upload an image and then click "Detect Image" button.')
 with image_c3:
     if detect_succeed:
-        st.download_button("Download reuslt image", convert_image(result_image), "reuslt.png", "image/png")
+        st.download_button("Download reuslt image",
+                           convert_image(result_image),
+                           f"det_reuslt_{image_upload.name}", "image/png")
 if detect_succeed:st.info(info)
 
 st.subheader(':camera: Detect Video')
