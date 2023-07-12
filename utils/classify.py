@@ -16,24 +16,18 @@ LABEL_TXT_DIR = '/home/orangepi/CCode/BOARD_TEST_TOOL/toolkits/configs'
 
 
 
-target_type_dict = {
+CLS_TARGET_TYPE = {
     'forestfire': 0,
     'imagenet': 1
 }
 
-def paras_target_type(target_type):
-    with open(os.path.join(LABEL_TXT_DIR, f'{target_type}.txt'), 'r') as f:
-        lines = f.readlines()
-    return [line.rstrip('\n').split(', ')[1] for line in lines]
-
-
-model_size_dict = {
+CLS_MODEL_SIZE = {
     '512-512': 0,
     '224-224': 1,
 }
 
 
-cls_config = {
+DEFAULT_CLS_CONFIG = {
     "target_type": 'forestfire',
     "model_size": '512-512',
     "label_names": ["no-fire", "fire"],
@@ -43,15 +37,20 @@ cls_config = {
 }
 
 
-def update_cls_config(cls_config, **kwargs):
+def paras_target_type(target_type):
+    with open(os.path.join(LABEL_TXT_DIR, f'{target_type}.txt'), 'r') as f:
+        lines = f.readlines()
+    return [line.rstrip('\n').split(', ')[1] for line in lines]
+
+
+def update_cls_config(config, **kwargs):
     for key in kwargs:
-        if key not in cls_config: continue
+        if key not in config: continue
         if key in ('target_type', 'model_size',
                    'weight_name', "rgb_input"
                    ):
-            cls_config[key] = kwargs[key]
-
-    cls_config['label_names'] = paras_target_type(cls_config['target_type'])
+            config[key] = kwargs[key]
+    config['label_names'] = paras_target_type(config['target_type'])
 
 
 def update_candidate_weights(config):

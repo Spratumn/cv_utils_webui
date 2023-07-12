@@ -14,26 +14,21 @@ WEIGHT_DIR = '/home/orangepi/weights/det'
 TOOLKITS = '/home/orangepi/CCode/BOARD_TEST_TOOL/toolkits/bin/det_mot'
 
 
-arch_type_dict = {
+ARCH_TYPE = {
     'yolox': 0,
     'damoyolo': 1,
     'yolov8': 2,
 }
 
-target_type_dict = {
+DET_TARGET_TYPE = {
     'person-vehicle': 0,
     'ship': 1,
     'multi-targets': 2,
     'person-vehicle-chestring': 3
 }
 
-def paras_target_type(target_type):
-    if target_type == 'multi-targets':
-        return ["Person", "Land Vehicle", "Air Vehicle", "Water Vehicle", "Animal", "Bird"]
-    return target_type.split('-')
 
-
-model_size_dict = {
+DET_MODEL_SIZE = {
     '960-576': 0,
     '704-416': 1,
     '640-384': 2,
@@ -41,7 +36,7 @@ model_size_dict = {
     '640-640': 4,
 }
 
-strides_dict = {
+DET_STRIDES = {
     'yolox': [4, 8, 16, 32],
     'damoyolo': [8, 16, 32],
     'yolov8': [8, 16, 32]
@@ -49,7 +44,7 @@ strides_dict = {
 }
 
 
-detect_config = {
+DEFAULT_DET_CONFIG = {
     "arch_type": 'yolox',
     "target_type": 'person-vehicle',
     "model_size": '960-576',
@@ -65,16 +60,23 @@ detect_config = {
 }
 
 
-def update_detect_config(detect_config, **kwargs):
+def paras_target_type(target_type):
+    if target_type == 'multi-targets':
+        return ["Person", "Land Vehicle", "Air Vehicle", "Water Vehicle", "Animal", "Bird"]
+    return target_type.split('-')
+
+
+
+def update_detect_config(config, **kwargs):
     for key in kwargs:
-        if key not in detect_config: continue
+        if key not in config: continue
         if key in ('arch_type', 'target_type', 'model_size', 'rgb_input',
                    'score_thresh', 'iou_thresh', 'nms_in_same_class',
                    'weight_name', 'draw_label'
                    ):
-            detect_config[key] = kwargs[key]
+            config[key] = kwargs[key]
 
-    detect_config['label_names'] = paras_target_type(detect_config['target_type'])
+    config['label_names'] = paras_target_type(config['target_type'])
 
 
 def update_candidate_weights(config):
@@ -97,14 +99,14 @@ def write_detect_config(config):
     model_width, model_height = [int(v) for v in config['model_size'].split('-')]
     json_config = {
         "model_path": os.path.join(WEIGHT_DIR, config['weight_name']),
-        "arch_type": arch_type_dict[config['arch_type']],
+        "arch_type": ARCH_TYPE[config['arch_type']],
         "model_width": model_width,
         "model_height": model_height,
         "rgb_input": config['rgb_input'],
         "nms_in_same_class": 1 if config['nms_in_same_class'] else 0,
         "score_thresh": config['score_thresh'],
         "iou_thresh": config['iou_thresh'],
-        "strides": strides_dict[config['arch_type']],
+        "strides": DET_STRIDES[config['arch_type']],
         "label_names": config['label_names']
     }
     time_uid = str(time.time())
